@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Estoque - SENAI</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            color: #333;
+        }
+
+        header {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 24px 16px;
+            margin-bottom: 24px;
+        }
+
+        header p {
+            color: #90caf9;
+            margin-top: 4px;
+        }
+
+        .container {
+            max-width: 1050px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            color: #003366;
+            font-size: 1.25rem;
+        }
+
+        .header-tabela {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e8eff7;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr 1fr auto;
+            gap: 12px;
+            align-items: end;
+            margin-top: 16px;
+        }
+
+        .form-busca {
+            display: flex;
+            gap: 8px;
+        }
+
+        .form-busca input {
+            width: 240px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #444;
+        }
+
+        input {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 0.95rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: #003366;
+            font-weight: 600;
+        }
+
+        /* Desafio 2: Destaque em vermelho para estoque menor que 5 */
+        .estoque-baixo {
+            background-color: #ffebee;
+            color: #c62828;
+            font-weight: 600;
+        }
+
+        /* Desafio 4: Estilo do rodapé totalizador */
+        .rodape-total td {
+            background-color: #f1f5f9;
+            color: #003366;
+            font-size: 1.05rem;
+            border-top: 2px solid #cbd5e1;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: white;
+        }
+
+        .btn-primary { background-color: #005a9c; padding: 10px 18px; }
+        .btn-primary:hover { background-color: #004477; }
+        .btn-limpar { background-color: #64748b; padding: 10px 14px; }
+        .btn-add { background-color: #2e7d32; }
+        .btn-sub { background-color: #ed6c02; }
+        .btn-del { background-color: #d32f2f; }
+
+        .acoes { display: flex; gap: 6px; }
+        .vazio { text-align: center; color: #777; padding: 20px; }
+        [hidden] { display: none !important; }
+
+        .tabela-responsiva { overflow-x: auto; }
+
+        @media (max-width: 760px) {
+            .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .btn-area { grid-column: 1 / -1; }
+            .header-tabela { align-items: stretch; }
+            .form-busca { flex-wrap: wrap; }
+            .form-busca input { flex: 1; min-width: 180px; }
+            .form-busca button, .form-busca a { flex-shrink: 0; }
+        }
+
+        @media (max-width: 440px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .btn-area { grid-column: auto; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sistema de Controle de Estoque</h1>
+        <p>Turma de Desenvolvimento de Sistemas - SENAI</p>
+    </header>
+
+    <main class="container">
+        <!-- Formulário de Cadastro -->
+        <section class="card">
+            <h2>Cadastrar Novo Produto</h2>
+            <form id="form-produto" class="form-grid">
+                <div>
+                    <label for="nome">Nome do Produto:</label>
+                    <input type="text" id="nome" placeholder="Ex: Teclado Mecânico" required>
+                </div>
+                <div>
+                    <label for="categoria">Categoria:</label>
+                    <input type="text" id="categoria" placeholder="Ex: Periféricos" required>
+                </div>
+                <div>
+                    <label for="preco">Preço Unitário (R$):</label>
+                    <input type="number" step="0.01" min="0" id="preco" required>
+                </div>
+                <div>
+                    <label for="quantidade">Qtd. Inicial:</label>
+                    <input type="number" min="0" step="1" id="quantidade" required>
+                </div>
+                <div class="btn-area">
+                    <button type="submit" class="btn btn-primary">Salvar Produto</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Tabela de Listagem -->
+        <section class="card">
+            <div class="header-tabela">
+                <h2>Produtos em Estoque</h2>
+
+                <!-- Campo de Busca -->
+                <form id="form-busca" class="form-busca">
+                    <input type="search" id="busca" placeholder="Buscar produto por nome...">
+                    <button type="submit" class="btn btn-primary">Buscar</button>
+                    <button type="button" id="limpar-busca" class="btn btn-limpar" hidden>Limpar</button>
+                </form>
+            </div>
+
+            <div class="tabela-responsiva">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Produto</th>
+                        <th>Categoria</th>
+                        <th>Preço Unit.</th>
+                        <th>Estoque</th>
+                        <th>Valor Total</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="lista-produtos"></tbody>
+                <tfoot id="rodape-total" hidden>
+                    <tr class="rodape-total">
+                        <td colspan="5" style="text-align: right;"><strong>Valor Total Geral do Estoque:</strong></td>
+                        <td colspan="2"><strong id="valor-total">R$ 0,00</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+            </div>
+        </section>
+    </main>
+    <script>
+        const chaveEstoque = 'senai-controle-estoque';
+        const formularioProduto = document.getElementById('form-produto');
+        const formularioBusca = document.getElementById('form-busca');
+        const campoBusca = document.getElementById('busca');
+        const botaoLimparBusca = document.getElementById('limpar-busca');
+        const listaProdutos = document.getElementById('lista-produtos');
+        const rodapeTotal = document.getElementById('rodape-total');
+        const valorTotal = document.getElementById('valor-total');
+        const formatoMoeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        let produtos = JSON.parse(localStorage.getItem(chaveEstoque) || '[]');
+
+        function salvarProdutos() {
+            localStorage.setItem(chaveEstoque, JSON.stringify(produtos));
+        }
+
+        function criarCelula(valor) {
+            const celula = document.createElement('td');
+            celula.textContent = valor;
+            return celula;
+        }
+
+        function criarBotaoAcao(texto, acao, classe, titulo) {
+            const botao = document.createElement('button');
+            botao.type = 'button';
+            botao.className = `btn ${classe}`;
+            botao.dataset.acao = acao;
+            botao.title = titulo;
+            botao.textContent = texto;
+            return botao;
+        }
+
+        function renderizarProdutos() {
+            const termo = campoBusca.value.trim().toLocaleLowerCase('pt-BR');
+            const produtosFiltrados = produtos.filter(produto =>
+                produto.nome.toLocaleLowerCase('pt-BR').includes(termo)
+            );
+            listaProdutos.replaceChildren();
+            botaoLimparBusca.hidden = campoBusca.value.length === 0;
+
+            if (produtosFiltrados.length === 0) {
+                const linhaVazia = document.createElement('tr');
+                const mensagemVazia = criarCelula(produtos.length === 0
+                    ? 'Nenhum produto cadastrado.'
+                    : 'Nenhum produto encontrado.');
+                mensagemVazia.colSpan = 7;
+                mensagemVazia.className = 'vazio';
+                linhaVazia.append(mensagemVazia);
+                listaProdutos.append(linhaVazia);
+            }
+
+            produtosFiltrados.forEach(produto => {
+                const linha = document.createElement('tr');
+                if (produto.quantidade < 5) linha.className = 'estoque-baixo';
+                linha.append(
+                    criarCelula(produto.id),
+                    criarCelula(produto.nome),
+                    criarCelula(produto.categoria),
+                    criarCelula(formatoMoeda.format(produto.preco)),
+                    criarCelula(`${produto.quantidade} un.`),
+                    criarCelula(formatoMoeda.format(produto.preco * produto.quantidade))
+                );
+
+                const celulaAcoes = document.createElement('td');
+                celulaAcoes.className = 'acoes';
+                celulaAcoes.append(
+                    criarBotaoAcao('+1', 'adicionar', 'btn-add', 'Adicionar +1'),
+                    criarBotaoAcao('-1', 'remover', 'btn-sub', 'Remover -1'),
+                    criarBotaoAcao('Excluir', 'excluir', 'btn-del', 'Excluir produto')
+                );
+                celulaAcoes.querySelectorAll('button').forEach(botao => {
+                    botao.dataset.id = produto.id;
+                });
+                linha.append(celulaAcoes);
+                listaProdutos.append(linha);
+            });
+
+            rodapeTotal.hidden = produtos.length === 0;
+            valorTotal.textContent = formatoMoeda.format(
+                produtos.reduce((total, produto) => total + produto.preco * produto.quantidade, 0)
+            );
+        }
+
+        formularioProduto.addEventListener('submit', evento => {
+            evento.preventDefault();
+            const novoProduto = {
+                id: produtos.reduce((maiorId, produto) => Math.max(maiorId, Number(produto.id)), 0) + 1,
+                nome: document.getElementById('nome').value.trim(),
+                categoria: document.getElementById('categoria').value.trim(),
+                preco: Number(document.getElementById('preco').value),
+                quantidade: Number(document.getElementById('quantidade').value)
+            };
+
+            if (!novoProduto.nome || !novoProduto.categoria || !Number.isFinite(novoProduto.preco) || !Number.isInteger(novoProduto.quantidade)) return;
+
+            produtos.push(novoProduto);
+            salvarProdutos();
+            formularioProduto.reset();
+            renderizarProdutos();
+        });
+
+        formularioBusca.addEventListener('submit', evento => {
+            evento.preventDefault();
+            renderizarProdutos();
+        });
+
+        campoBusca.addEventListener('input', renderizarProdutos);
+
+        botaoLimparBusca.addEventListener('click', () => {
+            campoBusca.value = '';
+            renderizarProdutos();
+            campoBusca.focus();
+        });
+
+        listaProdutos.addEventListener('click', evento => {
+            const botao = evento.target.closest('button[data-acao]');
+            if (!botao) return;
+
+            const produto = produtos.find(item => String(item.id) === botao.dataset.id);
+            if (!produto) return;
+
+            if (botao.dataset.acao === 'adicionar') produto.quantidade += 1;
+            if (botao.dataset.acao === 'remover' && produto.quantidade > 0) produto.quantidade -= 1;
+            if (botao.dataset.acao === 'excluir') {
+                if (!confirm('Excluir este produto?')) return;
+                produtos = produtos.filter(item => item.id !== produto.id);
+            }
+
+            salvarProdutos();
+            renderizarProdutos();
+        });
+
+        renderizarProdutos();
+    </script>
+</body>
+</html>

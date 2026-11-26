@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="conteudo.css">
+    <title>Visão geral | CorporateFlix</title>
+</head>
+<body>
+    <main class="welcome-page">
+        <video class="ambient-video" autoplay muted loop playsinline aria-hidden="true">
+            <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
+        </video>
+        <div class="welcome-overlay"></div>
+        <div class="welcome-copy">
+            <div class="content-kicker">Bem-vinda de volta, Ana</div>
+            <h1>Ideias melhores<br><em>começam em conjunto.</em></h1>
+            <p>Seu próximo passo de desenvolvimento está a um play de distância.</p>
+            <a class="start-link" href="aula.html">Começar aula <span aria-hidden="true">→</span></a>
+        </div>
+    </main>
+    <script>
+        document.querySelector('.start-link').addEventListener('click', event => {
+            event.preventDefault();
+            window.parent.postMessage({ page: 'aula.html' }, '*');
+        });
+    </script>
+</body>
+</html>

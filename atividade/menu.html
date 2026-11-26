@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>CorporateFlix | Treinamentos internos</title>
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand" href="boas-vindas.html" data-page="boas-vindas.html"><span class="brand-mark">CF</span><span>Corporate<span>Flix</span></span></a>
+            <p class="sidebar-label">Seu espaço</p>
+            <nav class="navigation" aria-label="Navegação principal">
+                <a class="navigation-link is-active" href="boas-vindas.html" data-page="boas-vindas.html"><span>⌂</span> Visão geral</a>
+                <a class="navigation-link" href="aula.html" data-page="aula.html"><span>▶</span> Aula em destaque</a>
+            </nav>
+            <div class="sidebar-footer"><span class="status-dot"></span> Ambiente corporativo</div>
+        </aside>
+        <main class="content-area">
+            <header class="topbar">
+                <div><p class="eyebrow">Academia interna</p><h1>Continue sua jornada</h1></div>
+                <div class="profile"><span class="profile-avatar">AS</span><span>Ana Souza</span></div>
+            </header>
+            <iframe id="content-frame" src="boas-vindas.html" title="Conteúdo do treinamento" allow="fullscreen"></iframe>
+        </main>
+    </div>
+    <script>
+        const frame = document.querySelector('#content-frame');
+        const links = document.querySelectorAll('[data-page]');
+        function navigate(page) {
+            frame.src = page;
+            links.forEach(link => link.classList.toggle('is-active', link.dataset.page === page));
+        }
+        links.forEach(link => link.addEventListener('click', event => {
+            event.preventDefault();
+            navigate(link.dataset.page);
+        }));
+        window.addEventListener('message', event => {
+            if (event.data && event.data.page === 'aula.html') navigate('aula.html');
+        });
+    </script>
+</body>
+</html>
